@@ -14,7 +14,7 @@ void quick_sort_wrapper(int arr[], int n);
 void merge_sort_wrapper(int arr[], int n);
 
 /*
- * ЧАСТЬ 3: ВНЕШНЯЯ СОРТИРОВКА (EXTERNAL SORT)
+ * ЧАСТЬ 3: ВНЕШНЯЯ СОРТИРОВКА СЛИЯНИЕМ (EXTERNAL SORT)
  */
 int* external_merge_sort_with_buffer(int input[], int n, int segment_size, int buffer_size);
 
