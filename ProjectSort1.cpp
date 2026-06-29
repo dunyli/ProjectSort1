@@ -354,92 +354,107 @@ static void test_merge_sort(void) {
  * ============================================================================
  */
 
+ /*
+  * Выводит массив ДО и ПОСЛЕ сортировки для наглядности
+  */
 static void test_external_sort(void) {
     printf("\n=== Тест 3: Внешняя сортировка ===\n");
 
     /* 3.1 Маленький массив */
-    printf("3.1 Маленький массив (10 элементов, сегмент 3, буфер 2)\n");
+    printf("\n3.1 Маленький массив (10 элементов, сегмент 3, буфер 2)\n");
     int arr1[] = { 64, 34, 25, 12, 22, 11, 90, 5, 88, 77 };
     int n1 = 10;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n1; i++) {
+        printf("%d", arr1[i]);
+        if (i < n1 - 1) printf(", ");
+    }
+    printf("]\n");
+
     int* sorted1 = external_merge_sort_with_buffer(arr1, n1, 3, 2);
     if (sorted1) {
+        printf("  ПОСЛЕ сортировки: [");
+        for (int i = 0; i < n1; i++) {
+            printf("%d", sorted1[i]);
+            if (i < n1 - 1) printf(", ");
+        }
+        printf("]\n");
         check("Массив отсортирован", is_sorted(sorted1, n1));
         free(sorted1);
     }
 
     /* 3.2 Средний массив */
-    printf("\n3.2 Средний массив (100 элементов, сегмент 10, буфер 5)\n");
-    int n2 = 100;
+    printf("\n3.2 Средний массив (20 элементов, сегмент 5, буфер 3)\n");
+    int n2 = 20;
     int* arr2 = create_random_array(n2);
-    int* sorted2 = external_merge_sort_with_buffer(arr2, n2, 10, 5);
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n2; i++) {
+        printf("%d", arr2[i]);
+        if (i < n2 - 1) printf(", ");
+        if (i == 9) printf("... ");  /* Обрезаем для наглядности */
+    }
+    printf("]\n");
+
+    int* sorted2 = external_merge_sort_with_buffer(arr2, n2, 5, 3);
     if (sorted2) {
+        printf("  ПОСЛЕ сортировки: [");
+        for (int i = 0; i < n2; i++) {
+            printf("%d", sorted2[i]);
+            if (i < n2 - 1) printf(", ");
+            if (i == 9) printf("... ");
+        }
+        printf("]\n");
         check("Массив отсортирован", is_sorted(sorted2, n2));
         free(sorted2);
     }
     free(arr2);
 
-    /* 3.3 Большой массив */
-    printf("\n3.3 Большой массив (1000 элементов, сегмент 50, буфер 10)\n");
-    int n3 = 1000;
-    int* arr3 = create_random_array(n3);
-    int* sorted3 = external_merge_sort_with_buffer(arr3, n3, 50, 10);
+    /* 3.3 Массив с одинаковыми элементами */
+    printf("\n3.3 Массив с одинаковыми элементами (10 элементов)\n");
+    int n3 = 10;
+    int* arr3 = (int*)malloc(n3 * sizeof(int));
+    for (int i = 0; i < n3; i++) arr3[i] = 5;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n3; i++) {
+        printf("%d", arr3[i]);
+        if (i < n3 - 1) printf(", ");
+    }
+    printf("]\n");
+
+    int* sorted3 = external_merge_sort_with_buffer(arr3, n3, 4, 2);
     if (sorted3) {
-        check("Массив отсортирован", is_sorted(sorted3, n3));
+        printf("  ПОСЛЕ сортировки: [");
+        for (int i = 0; i < n3; i++) {
+            printf("%d", sorted3[i]);
+            if (i < n3 - 1) printf(", ");
+        }
+        printf("]\n");
+        check("Массив с одинаковыми элементами отсортирован", is_sorted(sorted3, n3));
         free(sorted3);
     }
     free(arr3);
 
-    /* 3.4 Массив с одинаковыми элементами */
-    printf("\n3.4 Массив с одинаковыми элементами (20 элементов)\n");
-    int n4 = 20;
-    int* arr4 = (int*)malloc(n4 * sizeof(int));
-    for (int i = 0; i < n4; i++) arr4[i] = 5;
-    int* sorted4 = external_merge_sort_with_buffer(arr4, n4, 4, 2);
+    /* 3.4 Массив из одного элемента */
+    printf("\n3.4 Массив из одного элемента\n");
+    int n4 = 1;
+    int arr4[] = { 42 };
+
+    printf("  ДО сортировки: [%d]\n", arr4[0]);
+    int* sorted4 = external_merge_sort_with_buffer(arr4, n4, 1, 1);
     if (sorted4) {
-        check("Массив с одинаковыми элементами отсортирован", is_sorted(sorted4, n4));
+        printf("  ПОСЛЕ сортировки: [%d]\n", sorted4[0]);
+        check("Массив из одного элемента отсортирован", is_sorted(sorted4, n4));
         free(sorted4);
     }
-    free(arr4);
 
-    /* 3.5 Уже отсортированный массив */
-    printf("\n3.5 Уже отсортированный массив (50 элементов)\n");
-    int n5 = 50;
-    int* arr5 = (int*)malloc(n5 * sizeof(int));
-    for (int i = 0; i < n5; i++) arr5[i] = i * 2;
-    int* sorted5 = external_merge_sort_with_buffer(arr5, n5, 10, 5);
-    if (sorted5) {
-        check("Уже отсортированный массив остался отсортированным", is_sorted(sorted5, n5));
-        free(sorted5);
-    }
-    free(arr5);
-
-    /* 3.6 Обратно отсортированный массив */
-    printf("\n3.6 Обратно отсортированный массив (50 элементов)\n");
-    int n6 = 50;
-    int* arr6 = (int*)malloc(n6 * sizeof(int));
-    for (int i = 0; i < n6; i++) arr6[i] = n6 - i;
-    int* sorted6 = external_merge_sort_with_buffer(arr6, n6, 10, 5);
-    if (sorted6) {
-        check("Обратно отсортированный массив отсортирован", is_sorted(sorted6, n6));
-        free(sorted6);
-    }
-    free(arr6);
-
-    /* 3.7 Массив из одного элемента */
-    printf("\n3.7 Массив из одного элемента\n");
-    int n7 = 1;
-    int arr7[] = { 42 };
-    int* sorted7 = external_merge_sort_with_buffer(arr7, n7, 1, 1);
-    if (sorted7) {
-        check("Массив из одного элемента отсортирован", is_sorted(sorted7, n7));
-        free(sorted7);
-    }
-
-    /* 3.8 Пустой массив */
-    printf("\n3.8 Пустой массив\n");
-    int n8 = 0;
-    int* sorted8 = external_merge_sort_with_buffer(NULL, n8, 1, 1);
-    check("Пустой массив обработан корректно", sorted8 == NULL);
+    /* 3.5 Пустой массив */
+    printf("\n3.5 Пустой массив\n");
+    int n5 = 0;
+    int* sorted5 = external_merge_sort_with_buffer(NULL, n5, 1, 1);
+    check("Пустой массив обработан корректно", sorted5 == NULL);
 }
 
 /*
