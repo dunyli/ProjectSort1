@@ -248,4 +248,110 @@ typedef struct {
     int segment_index;         /* Индекс сегмента (для отладки) */
 } RunReader;
 
+/*
+ * Создание читателя для сегмента
+ * Открывает файл и инициализирует буфер
+ *
+ * Сегмент НЕ загружается в память целиком!
+ * Вместо этого открываем файл и будем читать из него блоками
+ */
+static RunReader* create_run_reader(const char* filename, int buffer_size) {
+    RunReader* reader = (RunReader*)malloc(sizeof(RunReader));
+    if (!reader) return NULL;
 
+    /* Открываем файл для чтения */
+    reader->file = fopen(filename, "rb");
+    if (!reader->file) {
+        free(reader);
+        perror("Не удалось открыть файл сегмента");
+        return NULL;
+    }
+
+    /* Выделяем память под буфер */
+    reader->buffer = (int*)malloc(buffer_size * sizeof(int));
+    if (!reader->buffer) {
+        fclose(reader->file);
+        free(reader);
+        return NULL;
+    }
+
+    /* Инициализируем все поля */
+    reader->buffer_size = buffer_size;
+    reader->buffer_count = 0;
+    reader->current_pos = 0;
+    reader->segment_size = 0;
+    reader->elements_read = 0;
+    reader->is_empty = 0;
+    reader->segment_index = 0;
+
+    /* Загружаем первую порцию данных в буфер */
+    reader->buffer_count = fread(reader->buffer, sizeof(int), buffer_size, reader->file);
+    reader->current_pos = 0;
+    reader->elements_read = reader->buffer_count;
+
+    /* Если ничего не прочитали - сегмент пуст */
+    if (reader->buffer_count == 0) {
+        reader->is_empty = 1;
+    }
+
+    return reader;
+}
+
+/*
+ * Получение следующего элемента из сегмента
+ * Если буфер закончился - загружаем следующую порцию из файла
+ * Возвращает: 1 если элемент получен, 0 если данных больше нет
+ * Значение элемента записывается в out_value
+ */
+static int get_next_from_reader(RunReader* reader, int* out_value) {
+    /* Если сегмент пуст или данные закончились */
+    if (reader->is_empty) {
+        return 0;
+    }
+
+    /* Если достигли конца буфера - загружаем следующую порцию */
+    if (reader->current_pos >= reader->buffer_count) {
+        /* Читаем следующую порцию из файла */
+        reader->buffer_count = fread(reader->buffer, sizeof(int), reader->buffer_size, reader->file);
+        reader->current_pos = 0;
+
+        /* Если ничего не прочитали - данные закончились */
+        if (reader->buffer_count == 0) {
+            reader->is_empty = 1;
+            return 0;
+        }
+
+        /* Обновляем количество прочитанных элементов */
+        reader->elements_read += reader->buffer_count;
+    }
+
+    /* Возвращаем текущий элемент и сдвигаем позицию */
+    *out_value = reader->buffer[reader->current_pos];
+    reader->current_pos++;
+    return 1;
+}
+
+/*
+ * Получение общего размера сегмента (без загрузки в память)
+ * Определяем размер файла и вычисляем количество элементов
+ */
+static int get_segment_size_from_file(const char* filename) {
+    FILE* file = fopen(filename, "rb");
+    if (!file) return 0;
+
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fclose(file);
+
+    return file_size / sizeof(int);
+}
+
+/*
+ * Уничтожение читателя (закрытие файла и освобождение памяти)
+ */
+static void destroy_run_reader(RunReader* reader) {
+    if (!reader) return;
+    if (reader->file) fclose(reader->file);
+    if (reader->buffer) free(reader->buffer);
+    free(reader);
+}
