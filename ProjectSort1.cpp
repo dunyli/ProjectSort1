@@ -41,50 +41,135 @@ static void check(const char* description, int condition) {
  * ============================================================================
  */
 
+ /*
+  * Выводит массив ДО и ПОСЛЕ сортировки для наглядности
+  */
 static void test_quick_sort(void) {
     printf("\n=== Тест 1: Быстрая сортировка ===\n");
 
     /* 1.1 Случайный массив */
-    printf("1.1 Случайный массив из 100 элементов\n");
-    int n = 100;
+    printf("\n1.1 Случайный массив из 10 элементов\n");
+    int n = 10;
     int* arr = create_random_array(n);
+
+    /* Вывод ДО сортировки */
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     quick_sort_wrapper(arr, n);
+
+    /* Вывод ПОСЛЕ сортировки */
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Массив отсортирован", is_sorted(arr, n));
     free(arr);
 
     /* 1.2 Массив с одинаковыми элементами */
-    printf("\n1.2 Массив с одинаковыми элементами (50 элементов)\n");
-    n = 50;
+    printf("\n1.2 Массив с одинаковыми элементами (10 элементов)\n");
+    n = 10;
     arr = (int*)malloc(n * sizeof(int));
     for (int i = 0; i < n; i++) arr[i] = 42;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     quick_sort_wrapper(arr, n);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Массив с одинаковыми элементами отсортирован", is_sorted(arr, n));
     free(arr);
 
     /* 1.3 Уже отсортированный массив */
-    printf("\n1.3 Уже отсортированный массив (50 элементов)\n");
-    n = 50;
+    printf("\n1.3 Уже отсортированный массив (10 элементов)\n");
+    n = 10;
     arr = (int*)malloc(n * sizeof(int));
     for (int i = 0; i < n; i++) arr[i] = i;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     quick_sort_wrapper(arr, n);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Уже отсортированный массив остался отсортированным", is_sorted(arr, n));
     free(arr);
 
     /* 1.4 Обратно отсортированный массив */
-    printf("\n1.4 Обратно отсортированный массив (50 элементов)\n");
-    n = 50;
+    printf("\n1.4 Обратно отсортированный массив (10 элементов)\n");
+    n = 10;
     arr = (int*)malloc(n * sizeof(int));
     for (int i = 0; i < n; i++) arr[i] = n - i;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     quick_sort_wrapper(arr, n);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Обратно отсортированный массив отсортирован", is_sorted(arr, n));
     free(arr);
 
     /* 1.5 Массив с отрицательными числами */
-    printf("\n1.5 Массив с отрицательными числами (30 элементов)\n");
-    n = 30;
+    printf("\n1.5 Массив с отрицательными числами (10 элементов)\n");
+    n = 10;
     arr = (int*)malloc(n * sizeof(int));
     for (int i = 0; i < n; i++) arr[i] = rand() % 200 - 100;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     quick_sort_wrapper(arr, n);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Массив с отрицательными числами отсортирован", is_sorted(arr, n));
     free(arr);
 
@@ -93,7 +178,11 @@ static void test_quick_sort(void) {
     n = 1;
     arr = (int*)malloc(n * sizeof(int));
     arr[0] = 42;
+
+    printf("  ДО сортировки: [%d]\n", arr[0]);
     quick_sort_wrapper(arr, n);
+    printf("  ПОСЛЕ сортировки: [%d]\n", arr[0]);
+
     check("Массив из одного элемента отсортирован", is_sorted(arr, n));
     free(arr);
 
@@ -103,57 +192,139 @@ static void test_quick_sort(void) {
     quick_sort_wrapper(NULL, n);
     check("Пустой массив обработан корректно", 1);
 }
-
 /*
  * ============================================================================
  *                         ТЕСТ 2: СОРТИРОВКА СЛИЯНИЕМ
  * ============================================================================
  */
 
+ /*
+  * Выводит массив ДО и ПОСЛЕ сортировки для наглядности
+  */
 static void test_merge_sort(void) {
     printf("\n=== Тест 2: Сортировка слиянием ===\n");
 
     /* 2.1 Случайный массив */
-    printf("2.1 Случайный массив из 100 элементов\n");
-    int n = 100;
+    printf("\n2.1 Случайный массив из 10 элементов\n");
+    int n = 10;
     int* arr = create_random_array(n);
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     merge_sort_wrapper(arr, n);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Массив отсортирован", is_sorted(arr, n));
     free(arr);
 
     /* 2.2 Массив с одинаковыми элементами */
-    printf("\n2.2 Массив с одинаковыми элементами (50 элементов)\n");
-    n = 50;
+    printf("\n2.2 Массив с одинаковыми элементами (10 элементов)\n");
+    n = 10;
     arr = (int*)malloc(n * sizeof(int));
     for (int i = 0; i < n; i++) arr[i] = 42;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     merge_sort_wrapper(arr, n);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Массив с одинаковыми элементами отсортирован", is_sorted(arr, n));
     free(arr);
 
     /* 2.3 Уже отсортированный массив */
-    printf("\n2.3 Уже отсортированный массив (50 элементов)\n");
-    n = 50;
+    printf("\n2.3 Уже отсортированный массив (10 элементов)\n");
+    n = 10;
     arr = (int*)malloc(n * sizeof(int));
     for (int i = 0; i < n; i++) arr[i] = i;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     merge_sort_wrapper(arr, n);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Уже отсортированный массив остался отсортированным", is_sorted(arr, n));
     free(arr);
 
     /* 2.4 Обратно отсортированный массив */
-    printf("\n2.4 Обратно отсортированный массив (50 элементов)\n");
-    n = 50;
+    printf("\n2.4 Обратно отсортированный массив (10 элементов)\n");
+    n = 10;
     arr = (int*)malloc(n * sizeof(int));
     for (int i = 0; i < n; i++) arr[i] = n - i;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     merge_sort_wrapper(arr, n);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Обратно отсортированный массив отсортирован", is_sorted(arr, n));
     free(arr);
 
     /* 2.5 Массив с отрицательными числами */
-    printf("\n2.5 Массив с отрицательными числами (30 элементов)\n");
-    n = 30;
+    printf("\n2.5 Массив с отрицательными числами (10 элементов)\n");
+    n = 10;
     arr = (int*)malloc(n * sizeof(int));
     for (int i = 0; i < n; i++) arr[i] = rand() % 200 - 100;
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     merge_sort_wrapper(arr, n);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n; i++) {
+        printf("%d", arr[i]);
+        if (i < n - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Массив с отрицательными числами отсортирован", is_sorted(arr, n));
     free(arr);
 
@@ -162,7 +333,11 @@ static void test_merge_sort(void) {
     n = 1;
     arr = (int*)malloc(n * sizeof(int));
     arr[0] = 42;
+
+    printf("  ДО сортировки: [%d]\n", arr[0]);
     merge_sort_wrapper(arr, n);
+    printf("  ПОСЛЕ сортировки: [%d]\n", arr[0]);
+
     check("Массив из одного элемента отсортирован", is_sorted(arr, n));
     free(arr);
 
