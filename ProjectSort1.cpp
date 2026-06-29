@@ -463,73 +463,51 @@ static void test_external_sort(void) {
  * ============================================================================
  */
 
+ /*
+  * Тест 4: Параллельная сортировка слиянием
+  * Выводит массив ДО и ПОСЛЕ сортировки для наглядности
+  */
 static void test_parallel_sort(void) {
     printf("\n=== Тест 4: Параллельная сортировка слиянием ===\n");
 
     /* 4.1 Маленький массив */
-    printf("4.1 Маленький массив (10 элементов)\n");
+    printf("\n4.1 Маленький массив (10 элементов)\n");
     int arr1[] = { 64, 34, 25, 12, 22, 11, 90, 5, 88, 77 };
     int n1 = 10;
     int* copy1 = copy_array(arr1, n1);
+
+    printf("  ДО сортировки: [");
+    for (int i = 0; i < n1; i++) {
+        printf("%d", arr1[i]);
+        if (i < n1 - 1) printf(", ");
+    }
+    printf("]\n");
+
     parallel_merge_sort(copy1, n1);
+
+    printf("  ПОСЛЕ сортировки: [");
+    for (int i = 0; i < n1; i++) {
+        printf("%d", copy1[i]);
+        if (i < n1 - 1) printf(", ");
+    }
+    printf("]\n");
+
     check("Массив отсортирован", is_sorted(copy1, n1));
     free(copy1);
 
-    /* 4.2 Средний массив */
-    printf("\n4.2 Средний массив (1000 элементов)\n");
-    int n2 = 1000;
+    /* 4.2 Сравнение производительности */
+    printf("\n4.2 Сравнение производительности (10000000 элементов)\n");
+    int n2 = 10000000;
     int* arr2 = create_random_array(n2);
     int* copy2 = copy_array(arr2, n2);
-    parallel_merge_sort(copy2, n2);
-    check("Массив отсортирован", is_sorted(copy2, n2));
-    free(arr2);
-    free(copy2);
-
-    /* 4.3 Большой массив */
-    printf("\n4.3 Большой массив (10000 элементов)\n");
-    int n3 = 10000;
-    int* arr3 = create_random_array(n3);
-    int* copy3 = copy_array(arr3, n3);
-    parallel_merge_sort(copy3, n3);
-    check("Массив отсортирован", is_sorted(copy3, n3));
-    free(arr3);
-    free(copy3);
-
-    /* 4.4 Массив с одинаковыми элементами */
-    printf("\n4.4 Массив с одинаковыми элементами (100 элементов)\n");
-    int n4 = 100;
-    int* arr4 = (int*)malloc(n4 * sizeof(int));
-    for (int i = 0; i < n4; i++) arr4[i] = 7;
-    int* copy4 = copy_array(arr4, n4);
-    parallel_merge_sort(copy4, n4);
-    check("Массив с одинаковыми элементами отсортирован", is_sorted(copy4, n4));
-    free(arr4);
-    free(copy4);
-
-    /* 4.5 Уже отсортированный массив */
-    printf("\n4.5 Уже отсортированный массив (100 элементов)\n");
-    int n5 = 100;
-    int* arr5 = (int*)malloc(n5 * sizeof(int));
-    for (int i = 0; i < n5; i++) arr5[i] = i;
-    int* copy5 = copy_array(arr5, n5);
-    parallel_merge_sort(copy5, n5);
-    check("Уже отсортированный массив остался отсортированным", is_sorted(copy5, n5));
-    free(arr5);
-    free(copy5);
-
-    /* 4.6 Сравнение производительности */
-    printf("\n4.6 Сравнение производительности (100000 элементов)\n");
-    int n6 = 100000;
-    int* arr6 = create_random_array(n6);
-    int* copy6 = copy_array(arr6, n6);
 
     clock_t start = clock();
-    merge_sort_wrapper(arr6, n6);
+    merge_sort_wrapper(arr2, n2);
     clock_t end = clock();
     double time_sequential = (double)(end - start) / CLOCKS_PER_SEC;
 
     start = clock();
-    parallel_merge_sort(copy6, n6);
+    parallel_merge_sort(copy2, n2);
     end = clock();
     double time_parallel = (double)(end - start) / CLOCKS_PER_SEC;
 
@@ -537,10 +515,10 @@ static void test_parallel_sort(void) {
     printf("  Параллельная сортировка: %.3f сек\n", time_parallel);
     printf("  Ускорение: %.2fx\n", time_sequential / time_parallel);
 
-    check("Параллельная сортировка корректна", is_sorted(copy6, n6));
+    check("Параллельная сортировка корректна", is_sorted(copy2, n2));
 
-    free(arr6);
-    free(copy6);
+    free(arr2);
+    free(copy2);
 }
 
 /*

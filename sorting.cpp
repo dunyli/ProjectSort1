@@ -267,6 +267,49 @@ void merge_sort_wrapper(int arr[], int n) {
     merge_sort(arr, 0, n - 1);       /* Вызываем рекурсивную сортировку */
 }
 
+
+/*
+ * Слияние двух отсортированных подмассивов (без выделения памяти)
+ * Использует переданный временный массив temp[]
+ */
+static void merge_fast(int arr[], int left, int mid, int right, int temp[]) {
+    int i = left;        /* Индекс для левой половины */
+    int j = mid + 1;     /* Индекс для правой половины */
+    int k = left;        /* Индекс для временного массива */
+
+    /* Сливаем две половины во временный массив */
+    while (i <= mid && j <= right) {
+        if (arr[i] <= arr[j]) {
+            temp[k] = arr[i];
+            i++;
+        }
+        else {
+            temp[k] = arr[j];
+            j++;
+        }
+        k++;
+    }
+
+    /* Копируем оставшиеся элементы из левой половины */
+    while (i <= mid) {
+        temp[k] = arr[i];
+        i++;
+        k++;
+    }
+
+    /* Копируем оставшиеся элементы из правой половины */
+    while (j <= right) {
+        temp[k] = arr[j];
+        j++;
+        k++;
+    }
+
+    /* Копируем обратно из временного массива в исходный */
+    for (i = left; i <= right; i++) {
+        arr[i] = temp[i];
+    }
+}
+
 /*
  * ============================================================================
  *               ЧАСТЬ 3: ВНЕШНЯЯ СОРТИРОВКА (EXTERNAL SORT)
@@ -686,11 +729,12 @@ int* external_merge_sort_with_buffer(int input[], int n, int segment_size, int b
   *   max_depth - максимальная глубина рекурсии (ограничивает количество потоков)
   */
 typedef struct {
-    int* arr;                          /* Указатель на массив */
-    int left;                          /* Левая граница подмассива */
-    int right;                         /* Правая граница подмассива */
+    int* arr;                          /* Массив для сортировки */
+    int* temp;                         /* Временный массив (один на все потоки) */
+    int left;                          /* Левая граница */
+    int right;                         /* Правая граница */
     int depth;                         /* Текущая глубина рекурсии */
-    int max_depth;                     /* Максимальная глубина рекурсии */
+    int max_depth;                     /* Максимальная глубина */
 } ThreadData;
 
 #ifdef _WIN32
@@ -731,6 +775,7 @@ static unsigned int __stdcall parallel_merge_sort_thread(void* arg) {
 
         /* Заполняем данные для левой половины */
         data_left.arr = data->arr;
+        data_left.temp = data->temp;
         data_left.left = left;
         data_left.right = mid;
         data_left.depth = depth + 1;        /* Увеличиваем глубину */
@@ -738,6 +783,7 @@ static unsigned int __stdcall parallel_merge_sort_thread(void* arg) {
 
         /* Заполняем данные для правой половины */
         data_right.arr = data->arr;
+        data_right.temp = data->temp;
         data_right.left = mid + 1;
         data_right.right = right;
         data_right.depth = depth + 1;        /* Увеличиваем глубину */
@@ -771,8 +817,8 @@ static unsigned int __stdcall parallel_merge_sort_thread(void* arg) {
         parallel_merge_sort_thread(&data_right);
     }
 
-    /* Сливаем две отсортированные половины (используем функцию из merge sort) */
-    merge(data->arr, left, mid, right);
+    /* Сливаем две отсортированные половины (используем функцию merge_fast ) */
+    merge_fast(data->arr, left, mid, right, data->temp);
     return 0;                                /* Успешное завершение */
 }
 
@@ -791,16 +837,22 @@ static unsigned int __stdcall parallel_merge_sort_thread(void* arg) {
 void parallel_merge_sort(int arr[], int n) {
     if (n <= 1) return;              /* Если массив пустой или из 1 элемента - ничего не делаем */
 
+    /* Выделяем временный массив ОДИН РАЗ для всей сортировки */
+    int* temp = (int*)malloc(n * sizeof(int));
+    if (!temp) return;
+
     ThreadData data;                 /* Структура с данными для запуска */
     data.arr = arr;                  /* Передаём массив */
+    data.temp = temp;
     data.left = 0;                   /* Начинаем с первого элемента */
     data.right = n - 1;              /* Заканчиваем последним элементом */
     data.depth = 0;                  /* Начинаем с глубины 0 */
-    data.max_depth = 3;              /* Максимальная глубина = 3 (8 потоков) */
+    data.max_depth = 5;              /* Максимальная глубина = 3 (8 потоков) */
 
 #ifdef _WIN32
     parallel_merge_sort_thread(&data);  /* Запускаем сортировку (Windows) */
 #endif
+    free(temp);
 }
 
 /*
