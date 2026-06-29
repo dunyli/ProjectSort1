@@ -1,5 +1,4 @@
-﻿#pragma once
-#ifndef SORTING_H
+﻿#ifndef SORTING_H
 #define SORTING_H
 
 #include <stdbool.h>
@@ -17,10 +16,10 @@ void merge_sort_wrapper(int arr[], int n);
 /*
  * ЧАСТЬ 3: ВНЕШНЯЯ СОРТИРОВКА (EXTERNAL SORT)
  */
-int* external_merge_sort(int input[], int n, int chunk_size);
+int* external_merge_sort_with_buffer(int input[], int n, int segment_size, int buffer_size);
 
 /*
- * ЧАСТЬ 4: ПАРАЛЛЕЛЬНАЯ СОРТИРОВКА СЛИЯНИЕМ
+ * ЧАСТЬ 4: Внешняя СОРТИРОВКА СЛИЯНИЕМ
  */
 void parallel_merge_sort(int arr[], int n);
 
